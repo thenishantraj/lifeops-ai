@@ -1,22 +1,7 @@
-#  LifeOps AI
-
-A Multi-Agent Personal Life Manager that integrates Health, Finance, and Study domains using CrewAI and Google Gemini.
-
-##  Features
-
-- **Multi-Agent System**: Three specialized AI agents (Health, Finance, Study) + Life Coordinator
-- **Cross-Domain Reasoning**: Intelligent trade-off decisions between life domains
-- **Modern UI**: Beautiful Streamlit dashboard with interactive charts
-- **Real-time Analysis**: Instant personalized recommendations
-- **Action Planning**: Weekly schedules and priority matrices
-
-
-
 
 # 🧠 LifeOps AI - Personal Operations Manager
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
-![Streamlit](https://img.shields.io/badge/Frontend-Streamlit-red)
 ![CrewAI](https://img.shields.io/badge/Orchestration-CrewAI-orange)
 ![Gemini](https://img.shields.io/badge/AI-Gemini%201.5%20Flash-green)
 ![Status](https://img.shields.io/badge/Status-Prototype-yellow)
