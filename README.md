@@ -4,7 +4,7 @@
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![CrewAI](https://img.shields.io/badge/Orchestration-CrewAI-orange)
 ![Gemini](https://img.shields.io/badge/AI-Gemini%201.5%20Flash-green)
-![Status](https://img.shields.io/badge/Status-Prototype-yellow)
+
 
 **LifeOps AI** is not just a chatbot; it is an **Agentic AI System** designed to be your proactive Personal Operations Manager. Unlike traditional apps that work in silos, LifeOps AI connects **Health**, **Finance**, and **Study** domains to provide holistic, cross-domain life decisions.
 
