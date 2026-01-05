@@ -39,7 +39,8 @@ class LifeOpsCrew:
             ],
             tasks=[health_task, finance_task, study_task, coordination_task],
             process=Process.sequential,
-            verbose=True
+            verbose=True,
+            memory=False
         )
         
         # 4. RUN THE CREW (Ye ek baar mein sab chalayega)
