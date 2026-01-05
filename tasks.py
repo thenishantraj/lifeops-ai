@@ -133,32 +133,21 @@ class LifeOpsTasks:
     
     
     def create_life_coordination_task(self, context_tasks: list) -> Task:
-        """Master task that coordinates all domains"""
-        coordinator = self.agents.create_life_coordinator()
+    """Master task that coordinates all domains"""
+    coordinator = self.agents.create_life_coordinator()
+    
+    return Task(
+        description=f"""Integrate insights from all domains and create a unified life plan.
         
-        return Task(
-            description=f"""You are the Life Operations Coordinator. Your job is to integrate
-            insights from all domains and create a unified life plan.
-            
-            User's Primary Problem: {self.user_context.get('problem', 'General life optimization')}
-            
-            Your Coordination Task:
-            1. Identify conflicts between domain recommendations
-            2. Make trade-off decisions when necessary
-            3. Create a unified weekly schedule
-            4. Prioritize actions based on urgency/importance
-            5. Provide specific cross-domain insights (e.g., "Because stress is high, reduce study hours")
-            
-            Focus on creating a balanced, sustainable approach.
-            Your output must include clear cross-domain reasoning.
-            """,
-            agent=coordinator,
-            expected_output="""A comprehensive life coordination plan with:
-            1. Cross-Domain Insights & Reasoning
-            2. Priority Matrix (Urgent/Important)
-            3. Unified Weekly Schedule
-            4. Trade-off Decisions Made
-            5. Specific Action Items for Each Domain
-            """,
-            context=context_tasks  # Correctly accepts list of Task objects
-        )
+        User's Problem: {self.user_context.get('problem', 'General life optimization')}
+        
+        Important: Provide CROSS-DOMAIN REASONING like:
+        - "Because stress is high, reduce study hours"
+        - "Since budget is tight, prioritize free health activities"
+        - "Given the exam is soon, adjust sleep schedule accordingly"
+        
+        Create a balanced weekly schedule with specific actions.""",
+        agent=coordinator,
+        expected_output="A unified life plan with cross-domain reasoning and specific actions.",
+        context=context_tasks
+    )
