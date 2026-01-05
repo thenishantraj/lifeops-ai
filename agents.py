@@ -23,14 +23,15 @@ class LifeOpsAgents:
         if not api_key or api_key == "your_google_api_key_here":
             raise ValueError("❌ GOOGLE_API_KEY not found. Please add it in Streamlit Cloud Secrets.")
         
-        # Initialize Gemini LLM
+        # Initialize Gemini LLM - USE gemini-pro instead of gemini-1.5-flash
         self.llm = ChatGoogleGenerativeAI(
-            model="gemini-1.5-flash",
+            model="gemini-pro",  # CHANGED: More reliable model
             google_api_key=api_key,
-            temperature=0.7
+            temperature=0.7,
+            max_tokens=2048
         )
         
-        print(f"✅ Using Google Gemini: gemini-1.5-flash")
+        print(f"✅ Using Google Gemini: gemini-pro")
     
     def create_health_agent(self) -> Agent:
         """Create the Health & Wellness Agent"""
@@ -40,7 +41,7 @@ class LifeOpsAgents:
             backstory="You are Dr. Maya Patel, a holistic health expert with 15 years of experience in preventive medicine and stress management.",
             verbose=True,
             allow_delegation=False,
-            llm=self.llm,  # Explicitly set Gemini LLM
+            llm=self.llm,
             max_iter=2
         )
     
