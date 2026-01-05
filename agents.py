@@ -1,11 +1,12 @@
 """
-LifeOps AI Agents using CrewAI
+LifeOps AI Agents using CrewAI with Google Gemini
 """
 import os
 from typing import List, Optional
 from crewai import Agent
 from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
+from langchain_google_genai import GoogleGenerativeAI
 
 # Load environment variables
 load_dotenv()
@@ -14,13 +15,28 @@ class LifeOpsAgents:
     """Container for all LifeOps AI agents"""
     
     def __init__(self):
-        # Gemini Model Configuration
-        self.llm = ChatGoogleGenerativeAI(
-            model="gemini-pro",
+        # Initialize Google Gemini LLM
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            raise ValueError("GOOGLE_API_KEY not found in environment variables")
+        
+        # Initialize LLM directly for CrewAI compatibility
+        self.llm = GoogleGenerativeAI(
+            model="gemini-1.5-flash",
+            google_api_key=api_key,
             temperature=0.7,
-            google_api_key=os.getenv("GOOGLE_API_KEY")
+            max_tokens=None,
+            timeout=None,
+            max_retries=2,
         )
         
+        # Alternative: Using ChatGoogleGenerativeAI if the above doesn't work
+        self.chat_llm = ChatGoogleGenerativeAI(
+            model="gemini-1.5-flash",
+            temperature=0.7,
+            google_api_key=api_key
+        )
+    
     def create_health_agent(self) -> Agent:
         """Create the Health & Wellness Agent"""
         return Agent(
@@ -34,8 +50,7 @@ class LifeOpsAgents:
                        foundation for all life success.""",
             verbose=True,
             allow_delegation=False,
-            llm=self.llm,
-            function_calling_llm=self.llm,  # <--- YE LINE SABSE JARURI HAI
+            llm=self.llm,  # Using Google Gemini
             max_iter=3,
             max_rpm=10
         )
@@ -53,8 +68,7 @@ class LifeOpsAgents:
                        should enable life goals, not control them.""",
             verbose=True,
             allow_delegation=False,
-            llm=self.llm,
-            function_calling_llm=self.llm,  # <--- YE LINE SABSE JARURI HAI
+            llm=self.llm,  # Using Google Gemini
             max_iter=3,
             max_rpm=10
         )
@@ -72,8 +86,7 @@ class LifeOpsAgents:
                        You believe smart work always beats hard work.""",
             verbose=True,
             allow_delegation=False,
-            llm=self.llm,
-            function_calling_llm=self.llm,  # <--- YE LINE SABSE JARURI HAI
+            llm=self.llm,  # Using Google Gemini
             max_iter=3,
             max_rpm=10
         )
@@ -92,9 +105,8 @@ class LifeOpsAgents:
                        is making tough decisions that optimize for long-term happiness 
                        and success.""",
             verbose=True,
-            allow_delegation=False,
-            llm=self.llm,
-            function_calling_llm=self.llm,  # <--- YE LINE SABSE JARURI HAI
+            allow_delegation=True,
+            llm=self.llm,  # Using Google Gemini
             max_iter=5,
             max_rpm=15
         )
