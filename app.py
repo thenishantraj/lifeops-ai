@@ -1,7 +1,6 @@
 """
 LifeOps AI - Streamlit Application
 """
-
 import streamlit as st
 import os
 import sys
@@ -11,12 +10,55 @@ import json
 # Add current directory to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from utils import (
-    load_env, format_date, calculate_days_until,
-    create_health_chart, create_finance_chart, create_study_schedule,
-    create_insight_card, parse_agent_output
-)
-from crew_setup import LifeOpsCrew
+# --- STREAMLIT CLOUD CONFIGURATION ---
+# Set dummy OpenAI keys to prevent CrewAI from using OpenAI
+os.environ["OPENAI_API_KEY"] = "not-needed"
+os.environ["OPENAI_MODEL_NAME"] = "not-needed"
+
+# Check if running on Streamlit Cloud
+if not os.path.exists('.env'):
+    # On Streamlit Cloud, use st.secrets
+    try:
+        if 'GOOGLE_API_KEY' not in os.environ:
+            # Get API key from Streamlit Secrets
+            os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
+            print("✅ Using API key from Streamlit Secrets")
+    except Exception as e:
+        # Show error if no secrets configured
+        st.error("""
+        ⚠️ **Google Gemini API Key Required**
+        
+        Please add your Google Gemini API key to Streamlit Cloud Secrets:
+        
+        1. Go to your app dashboard on Streamlit Cloud
+        2. Click on "Settings" → "Secrets"
+        3. Add:
+        ```
+        GOOGLE_API_KEY = "your_actual_api_key_here"
+        ```
+        
+        Get your API key from: [Google AI Studio](https://makersuite.google.com/app/apikey)
+        
+        Error: {}
+        """.format(str(e)))
+        st.stop()
+else:
+    # Local development - load from .env
+    from dotenv import load_dotenv
+    load_dotenv()
+    print("✅ Using API key from .env file")
+
+# Rest of your imports
+try:
+    from utils import (
+        format_date, calculate_days_until,
+        create_health_chart, create_finance_chart, create_study_schedule,
+        create_insight_card
+    )
+    from crew_setup import LifeOpsCrew
+except Exception as e:
+    st.error(f"❌ Error importing modules: {e}")
+    st.stop()
 
 # Page configuration
 st.set_page_config(
@@ -77,6 +119,13 @@ st.markdown("""
         margin: 1rem 0;
         border-left: 4px solid #667eea;
     }
+    .success-box {
+        background: linear-gradient(135deg, #4CAF5020 0%, #45a04920 100%);
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin: 1rem 0;
+        border-left: 4px solid #4CAF50;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -88,12 +137,35 @@ def initialize_session_state():
         st.session_state.user_inputs = {}
     if 'processing' not in st.session_state:
         st.session_state.processing = False
+    if 'api_key_available' not in st.session_state:
+        st.session_state.api_key_available = os.getenv("GOOGLE_API_KEY") not in [None, "", "your_google_api_key_here"]
 
 def main():
     """Main application function"""
     
     # Initialize session state
     initialize_session_state()
+    
+    # Check API key
+    if not st.session_state.api_key_available:
+        st.error("""
+        ⚠️ **Google Gemini API Key Not Found**
+        
+        Please configure your API key:
+        
+        **For Streamlit Cloud:**
+        1. Go to: https://share.streamlit.io/
+        2. Select your LifeOps AI app
+        3. Click "Settings" → "Secrets"
+        4. Add: `GOOGLE_API_KEY = "your_actual_key_here"`
+        
+        **For Local Development:**
+        1. Create `.streamlit/secrets.toml` file
+        2. Add: `GOOGLE_API_KEY = "your_actual_key_here"`
+        
+        Get your free API key from: [Google AI Studio](https://makersuite.google.com/app/apikey)
+        """)
+        return
     
     # Header
     col1, col2 = st.columns([3, 1])
@@ -150,6 +222,11 @@ def main():
             step=1
         )
         
+        subjects = st.text_input(
+            "Subjects/Topics",
+            "Mathematics, Science, English"
+        )
+        
         st.markdown("#### 💰 Finance")
         
         monthly_budget = st.number_input(
@@ -179,14 +256,6 @@ def main():
             height=100
         )
         
-        # Run button
-        st.markdown("---")
-        run_clicked = st.button(
-            "🚀 Run LifeOps Analysis",
-            type="primary",
-            use_container_width=True
-        )
-        
         # Store inputs
         user_inputs = {
             'stress_level': stress_level,
@@ -195,6 +264,7 @@ def main():
             'exam_date': exam_date.strftime("%Y-%m-%d"),
             'days_until_exam': (exam_date - datetime.now().date()).days,
             'current_study_hours': current_study_hours,
+            'subjects': subjects,
             'monthly_budget': monthly_budget,
             'current_expenses': current_expenses,
             'financial_goals': financial_goals,
@@ -202,6 +272,17 @@ def main():
         }
         
         st.session_state.user_inputs = user_inputs
+        
+        # Run button
+        st.markdown("---")
+        run_clicked = st.button(
+            "🚀 Run LifeOps Analysis",
+            type="primary",
+            use_container_width=True
+        )
+        
+        if run_clicked:
+            st.session_state.processing = True
     
     # Main content area
     tab1, tab2, tab3 = st.tabs(["📊 Dashboard", "🤖 AI Analysis", "📅 Action Plan"])
@@ -231,7 +312,7 @@ def main():
             """, unsafe_allow_html=True)
         
         with col3:
-            savings = monthly_budget - current_expenses
+            savings = max(0, monthly_budget - current_expenses)
             st.markdown(f"""
             <div class="metric-card">
                 <h3 style="color: #4CAF50;">${savings}</h3>
@@ -240,7 +321,7 @@ def main():
             """, unsafe_allow_html=True)
         
         with col4:
-            health_score = max(0, 10 - stress_level + (sleep_hours - 5))
+            health_score = max(0, min(10, 10 - stress_level + (sleep_hours - 5)))
             st.markdown(f"""
             <div class="metric-card">
                 <h3 style="color: #FF9800;">{int(health_score)}/10</h3>
@@ -276,16 +357,10 @@ def main():
         # AI Analysis Area
         st.markdown("## 🤖 AI Life Analysis")
         
-        if run_clicked and not st.session_state.processing:
+        if st.session_state.processing:
             # Run analysis
             with st.spinner("🧠 LifeOps AI is analyzing your life domains..."):
                 try:
-                    # Load environment
-                    load_env()
-                    
-                    # Run analysis
-                    st.session_state.processing = True
-                    
                     # Create and run crew
                     crew = LifeOpsCrew(user_inputs)
                     results = crew.kickoff()
@@ -295,14 +370,25 @@ def main():
                     st.session_state.processing = False
                     
                     # Show success message
-                    st.success("✅ LifeOps analysis complete!")
+                    st.markdown("""
+                    <div class="success-box">
+                        <h4 style="margin: 0; color: #4CAF50;">✅ LifeOps Analysis Complete!</h4>
+                        <p style="margin: 10px 0 0 0; color: #666;">Your personalized life plan is ready below.</p>
+                    </div>
+                    """, unsafe_allow_html=True)
                     
                 except Exception as e:
                     st.error(f"❌ Error: {str(e)}")
+                    st.info("""
+                    **Troubleshooting Tips:**
+                    1. Check your Google API key is valid
+                    2. Ensure you have internet connection
+                    3. Try again in a few moments
+                    """)
                     st.session_state.processing = False
         
         # Display results if available
-        if st.session_state.analysis_results:
+        if st.session_state.analysis_results and not st.session_state.processing:
             results = st.session_state.analysis_results
             
             # Cross-domain insights highlight
@@ -349,14 +435,14 @@ def main():
             st.markdown("### 🎯 Integrated Life Plan")
             st.markdown(results['coordination'])
         
-        elif not run_clicked:
+        elif not st.session_state.processing and not st.session_state.analysis_results:
             st.info("👈 Configure your life settings in the sidebar and click 'Run LifeOps Analysis' to begin.")
     
     with tab3:
         # Action Plan
         st.markdown("## 📅 Your Action Plan")
         
-        if st.session_state.analysis_results:
+        if st.session_state.analysis_results and not st.session_state.processing:
             results = st.session_state.analysis_results
             
             # Create a structured action plan
@@ -420,10 +506,10 @@ def main():
             # Download button for action plan
             action_plan = {
                 "user_context": st.session_state.user_inputs,
-                "health_recommendations": results['health'][:500] + "...",
-                "finance_recommendations": results['finance'][:500] + "...",
-                "study_recommendations": results['study'][:500] + "...",
-                "integrated_plan": results['coordination'][:1000] + "..."
+                "health_recommendations": results['health'][:500] + ("..." if len(results['health']) > 500 else ""),
+                "finance_recommendations": results['finance'][:500] + ("..." if len(results['finance']) > 500 else ""),
+                "study_recommendations": results['study'][:500] + ("..." if len(results['study']) > 500 else ""),
+                "integrated_plan": results['coordination'][:1000] + ("..." if len(results['coordination']) > 1000 else "")
             }
             
             st.download_button(
