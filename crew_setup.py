@@ -19,43 +19,44 @@ class LifeOpsCrew:
         
         print("🚀 Starting LifeOps AI Analysis...")
         
-        # Create individual tasks
+        # 1. Create Tasks (Task objects banaye)
         health_task = self.tasks.create_health_analysis_task()
         finance_task = self.tasks.create_finance_analysis_task()
         study_task = self.tasks.create_study_analysis_task()
         
-        # Execute individual domain tasks
-        print("🧠 Analyzing Health Domain...")
-        health_result = health_task.execute()
-        
-        print("💰 Analyzing Finance Domain...")
-        finance_result = finance_task.execute()
-        
-        print("📚 Analyzing Study Domain...")
-        study_result = study_task.execute()
-        
-        # Create and execute coordination task
+        # 2. Coordination Task (Isme purane tasks ko context mein bheja)
         coordination_task = self.tasks.create_life_coordination_task(
-            health_result,
-            finance_result,
-            study_result
+            context_tasks=[health_task, finance_task, study_task]
         )
         
-        print("🔄 Coordinating Life Domains...")
-        coordination_result = coordination_task.execute()
+        # 3. Create Crew (Saare agents aur tasks ko ek team banaya)
+        crew = Crew(
+            agents=[
+                health_task.agent, 
+                finance_task.agent, 
+                study_task.agent, 
+                coordination_task.agent
+            ],
+            tasks=[health_task, finance_task, study_task, coordination_task],
+            process=Process.sequential,
+            verbose=True
+        )
         
-        # Compile results
-        results = {
-            "health": health_result,
-            "finance": finance_result,
-            "study": study_result,
-            "coordination": coordination_result,
-            "cross_domain_insights": self._extract_cross_domain_insights(coordination_result),
+        # 4. RUN THE CREW (Ye sab kuch chalayega)
+        print("🔄 Running LifeOps Crew...")
+        final_result = crew.kickoff()
+        
+        # 5. Result Extract Karna (Ab hum output nikalenge)
+        print("✅ LifeOps Analysis Complete!")
+        
+        return {
+            "health": str(health_task.output),
+            "finance": str(finance_task.output),
+            "study": str(study_task.output),
+            "coordination": str(final_result),
+            "cross_domain_insights": self._extract_cross_domain_insights(str(final_result)),
             "user_context": self.user_context
         }
-        
-        print("✅ LifeOps Analysis Complete!")
-        return results
     
     def _extract_cross_domain_insights(self, coordination_output: str) -> str:
         """Extract cross-domain insights from coordination output"""
