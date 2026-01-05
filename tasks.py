@@ -24,7 +24,6 @@ class LifeOpsTasks:
             - Stress Level: {self.user_context.get('stress_level', 'Not specified')}/10
             - Sleep Pattern: {self.user_context.get('sleep_hours', 'Not specified')} hours
             - Exercise Frequency: {self.user_context.get('exercise_frequency', 'Not specified')}
-            - Diet Quality: {self.user_context.get('diet_quality', 'Not specified')}
             - Problem: {self.user_context.get('problem', 'No specific problem mentioned')}
             
             Your Analysis Should Include:
@@ -33,7 +32,6 @@ class LifeOpsTasks:
             3. Sleep optimization plan
             4. Quick exercise/movement recommendations
             5. Nutrition tips for stress management
-            6. Warning signs to watch for
             
             Consider cross-domain impacts:
             - How health affects study productivity
@@ -43,13 +41,7 @@ class LifeOpsTasks:
             Format your output with clear sections and actionable steps.
             """,
             agent=health_agent,
-            expected_output="""A comprehensive health analysis with:
-            1. Risk Assessment (Low/Medium/High)
-            2. Immediate Actions (next 24 hours)
-            3. Short-term Plan (next week)
-            4. Long-term Recommendations
-            5. Cross-domain Considerations
-            """
+            expected_output="""A comprehensive health analysis with actionable steps."""
         )
     
     def create_finance_analysis_task(self) -> Task:
@@ -70,7 +62,6 @@ class LifeOpsTasks:
             2. Expense optimization opportunities
             3. Savings strategy
             4. Emergency fund recommendations
-            5. Cost-effective health/study investments
             
             Consider cross-domain impacts:
             - How financial decisions affect health (stress, nutrition)
@@ -80,16 +71,9 @@ class LifeOpsTasks:
             Provide specific, actionable financial advice.
             """,
             agent=finance_agent,
-            expected_output="""A detailed financial plan with:
-            1. Budget Allocation Breakdown
-            2. Expense Optimization Tips
-            3. Savings Strategy
-            4. Investment Recommendations (if any)
-            5. Cross-domain Financial Implications
-            """
+            expected_output="""A detailed financial plan with actionable advice."""
         )
     
-   
     def create_study_analysis_task(self) -> Task:
         """Task for study agent to analyze user's learning situation"""
         study_agent = self.agents.create_study_agent()
@@ -111,7 +95,6 @@ class LifeOpsTasks:
             2. Effective learning techniques for retention
             3. Burnout prevention strategies
             4. Break scheduling recommendations
-            5. Resource allocation
             
             Consider cross-domain impacts:
             - How study schedule affects sleep/health
@@ -121,33 +104,28 @@ class LifeOpsTasks:
             Create a realistic, sustainable study plan.
             """,
             agent=study_agent,
-            expected_output="""A comprehensive study plan with:
-            1. Daily/Weekly Schedule
-            2. Learning Technique Recommendations
-            3. Progress Tracking Methods
-            4. Break/Burnout Prevention Strategy
-            5. Resource Recommendations
-            6. Cross-domain Considerations
-            """
+            expected_output="""A comprehensive study plan with schedule and techniques."""
         )
     
-    
-    def create_life_coordination_task(self, context_tasks: list) -> Task:
-    """Master task that coordinates all domains"""
-    coordinator = self.agents.create_life_coordinator()
-    
-    return Task(
-        description=f"""Integrate insights from all domains and create a unified life plan.
+    def create_life_coordination_task(self, context_tasks: list) -> Task:  # FIXED INDENTATION
+        """Master task that coordinates all domains"""
+        coordinator = self.agents.create_life_coordinator()
         
-        User's Problem: {self.user_context.get('problem', 'General life optimization')}
-        
-        Important: Provide CROSS-DOMAIN REASONING like:
-        - "Because stress is high, reduce study hours"
-        - "Since budget is tight, prioritize free health activities"
-        - "Given the exam is soon, adjust sleep schedule accordingly"
-        
-        Create a balanced weekly schedule with specific actions.""",
-        agent=coordinator,
-        expected_output="A unified life plan with cross-domain reasoning and specific actions.",
-        context=context_tasks
-    )
+        return Task(
+            description=f"""Integrate insights from all domains and create a unified life plan.
+            
+            User's Problem: {self.user_context.get('problem', 'General life optimization')}
+            
+            Important: Provide CROSS-DOMAIN REASONING like:
+            - "Because stress is high, reduce study hours"
+            - "Since budget is tight, prioritize free health activities"
+            - "Given the exam is soon, adjust sleep schedule accordingly"
+            
+            Create a balanced weekly schedule with specific actions.
+            
+            Cross-domain insights are CRITICAL for this task.
+            """,
+            agent=coordinator,
+            expected_output="A unified life plan with cross-domain reasoning and specific actions.",
+            context=context_tasks
+        )
