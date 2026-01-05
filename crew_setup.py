@@ -19,12 +19,12 @@ class LifeOpsCrew:
         
         print("🚀 Starting LifeOps AI Analysis...")
         
-        # 1. Create Tasks (Task objects banaye)
+        # 1. Create Tasks (Task Objects banaye)
         health_task = self.tasks.create_health_analysis_task()
         finance_task = self.tasks.create_finance_analysis_task()
         study_task = self.tasks.create_study_analysis_task()
         
-        # 2. Coordination Task (Isme purane tasks ko context mein bheja)
+        # 2. Coordination Task (Ab ye list of tasks lega - Corrected)
         coordination_task = self.tasks.create_life_coordination_task(
             context_tasks=[health_task, finance_task, study_task]
         )
@@ -42,11 +42,11 @@ class LifeOpsCrew:
             verbose=True
         )
         
-        # 4. RUN THE CREW (Ye sab kuch chalayega)
+        # 4. RUN THE CREW (Ye ek baar mein sab chalayega)
         print("🔄 Running LifeOps Crew...")
         final_result = crew.kickoff()
         
-        # 5. Result Extract Karna (Ab hum output nikalenge)
+        # 5. Extract Results safely
         print("✅ LifeOps Analysis Complete!")
         
         return {
@@ -60,7 +60,6 @@ class LifeOpsCrew:
     
     def _extract_cross_domain_insights(self, coordination_output: str) -> str:
         """Extract cross-domain insights from coordination output"""
-        # This is a simplified extraction - in production, you might use more sophisticated parsing
         lines = coordination_output.split('\n')
         cross_domain_lines = []
         
@@ -74,37 +73,7 @@ class LifeOpsCrew:
                 cross_domain_lines.append(line)
         
         if cross_domain_lines:
-            return "\n".join(cross_domain_lines[:5])  # Return top 5 insights
+            return "\n".join(cross_domain_lines[:5])
         
-        # If no explicit cross-domain insights found, return the first paragraph
         paragraphs = coordination_output.split('\n\n')
         return paragraphs[0] if paragraphs else "Cross-domain insights integrated into the plan."
-    
-    def run_sequential_crew(self):
-        """Alternative: Run as a single crew with sequential process"""
-        agents = self.agents.get_all_agents()
-        
-        # Get all tasks
-        tasks = [
-            self.tasks.create_health_analysis_task(),
-            self.tasks.create_finance_analysis_task(),
-            self.tasks.create_study_analysis_task(),
-        ]
-        
-        # Add coordination task
-        coordination_task = self.tasks.create_life_coordination_task(
-            "", "", ""  # Placeholders, will be filled by context
-        )
-        tasks.append(coordination_task)
-        
-        # Create crew
-        crew = Crew(
-            agents=agents,
-            tasks=tasks,
-            verbose=True,
-            process=Process.sequential,
-            memory=True,
-            cache=True
-        )
-        
-        return crew.kickoff()
