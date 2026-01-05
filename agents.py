@@ -14,6 +14,7 @@ class LifeOpsAgents:
     """Container for all LifeOps AI agents"""
     
     def __init__(self):
+        # Gemini Model Configuration
         self.llm = ChatGoogleGenerativeAI(
             model="gemini-pro",
             temperature=0.7,
@@ -21,81 +22,58 @@ class LifeOpsAgents:
         )
         
     def create_health_agent(self) -> Agent:
-        """Create the Health & Wellness Agent"""
         return Agent(
             role="Health and Wellness Expert",
-            goal="""Optimize user's physical and mental health through balanced routines,
-                  stress management, sleep optimization, and nutrition advice.""",
-            backstory="""You are Dr. Maya Patel, a holistic health expert with 15 years of 
-                       experience in preventive medicine and stress management. You combine 
-                       Eastern wellness traditions with Western medical science to create 
-                       sustainable health routines. You believe that optimal health is the 
-                       foundation for all life success.""",
+            goal="Optimize user's physical and mental health...",
+            backstory="You are Dr. Maya Patel...",
             verbose=True,
             allow_delegation=False,
             llm=self.llm,
+            function_calling_llm=self.llm,  # <--- YE LINE JADU KAREGI (OpenAI ko rokegi)
             max_iter=3,
             max_rpm=10
         )
     
     def create_finance_agent(self) -> Agent:
-        """Create the Personal Finance Agent"""
         return Agent(
             role="Personal Finance Advisor",
-            goal="""Help users manage their finances effectively, create budgets, 
-                  optimize expenses, and build savings while maintaining quality of life.""",
-            backstory="""You are Alex Chen, a certified financial planner who specializes 
-                       in helping professionals balance ambition with financial stability. 
-                       You've helped hundreds of clients achieve financial independence 
-                       through smart budgeting and investment strategies. You believe money 
-                       should enable life goals, not control them.""",
+            goal="Help users manage their finances...",
+            backstory="You are Alex Chen...",
             verbose=True,
             allow_delegation=False,
             llm=self.llm,
+            function_calling_llm=self.llm,  # <--- YE LINE JADU KAREGI
             max_iter=3,
             max_rpm=10
         )
     
     def create_study_agent(self) -> Agent:
-        """Create the Learning & Productivity Agent"""
         return Agent(
             role="Learning and Productivity Specialist",
-            goal="""Design effective study schedules, optimize learning techniques, 
-                  manage time efficiently, and prevent burnout while achieving academic goals.""",
-            backstory="""You are Professor James Wilson, an educational psychologist 
-                       with expertise in cognitive science and time management. You've 
-                       published research on optimal learning intervals and helped 
-                       thousands of students achieve academic success without burnout. 
-                       You believe smart work always beats hard work.""",
+            goal="Design effective study schedules...",
+            backstory="You are Professor James Wilson...",
             verbose=True,
             allow_delegation=False,
             llm=self.llm,
+            function_calling_llm=self.llm,  # <--- YE LINE JADU KAREGI
             max_iter=3,
             max_rpm=10
         )
     
     def create_life_coordinator(self) -> Agent:
-        """Create the Master Life Coordinator Agent"""
         return Agent(
             role="Life Operations Coordinator",
-            goal="""Orchestrate all life domains (health, finance, study) to create 
-                  a balanced, sustainable lifestyle. Make trade-off decisions when 
-                  conflicts arise between domains.""",
-            backstory="""You are Sophia Williams, a renowned life strategist who 
-                       integrates multiple life domains into cohesive strategies. 
-                       With degrees in psychology, business, and education, you 
-                       understand how different life areas interact. Your specialty 
-                       is making tough decisions that optimize for long-term happiness 
-                       and success.""",
+            goal="Orchestrate all life domains...",
+            backstory="You are Sophia Williams...",
             verbose=True,
-            allow_delegation=False,
+            allow_delegation=False,  # <--- Ye False hi rahne dena
             llm=self.llm,
+            function_calling_llm=self.llm,  # <--- YE LINE JADU KAREGI
             max_iter=5,
             max_rpm=15
         )
     
     def get_all_agents(self) -> List[Agent]:
-        """Get all agents as a list"""
         return [
             self.create_health_agent(),
             self.create_finance_agent(),
