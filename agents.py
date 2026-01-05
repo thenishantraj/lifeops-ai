@@ -88,7 +88,7 @@ class LifeOpsAgents:
                        is making tough decisions that optimize for long-term happiness 
                        and success.""",
             verbose=True,
-            allow_delegation=True,
+            allow_delegation=False,
             llm=self.llm,
             max_iter=5,
             max_rpm=15
