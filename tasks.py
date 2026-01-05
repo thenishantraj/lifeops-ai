@@ -89,7 +89,7 @@ class LifeOpsTasks:
             """
         )
     
-    # Ye function missing tha, ab add kar diya hai ✅
+   
     def create_study_analysis_task(self) -> Task:
         """Task for study agent to analyze user's learning situation"""
         study_agent = self.agents.create_study_agent()
@@ -131,7 +131,7 @@ class LifeOpsTasks:
             """
         )
     
-    # Ye sahi wala coordination logic hai ✅
+    
     def create_life_coordination_task(self, context_tasks: list) -> Task:
         """Master task that coordinates all domains"""
         coordinator = self.agents.create_life_coordinator()
