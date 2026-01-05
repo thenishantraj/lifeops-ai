@@ -3,7 +3,6 @@ LifeOps AI - Streamlit Application
 """
 import streamlit as st
 import os
-os.environ["OPENAI_API_KEY"] = "NA"
 import sys
 from datetime import datetime, timedelta
 import json
