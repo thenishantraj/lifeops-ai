@@ -2,11 +2,10 @@
 LifeOps AI Agents using CrewAI with Google Gemini
 """
 import os
-from typing import List, Optional
+from typing import List
 from crewai import Agent
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAI
 from dotenv import load_dotenv
-from langchain_google_genai import GoogleGenerativeAI
 
 # Load environment variables
 load_dotenv()
@@ -15,26 +14,30 @@ class LifeOpsAgents:
     """Container for all LifeOps AI agents"""
     
     def __init__(self):
-        # Initialize Google Gemini LLM
         api_key = os.getenv("GOOGLE_API_KEY")
-        if not api_key:
-            raise ValueError("GOOGLE_API_KEY not found in environment variables")
         
-        # Initialize LLM directly for CrewAI compatibility
+        # Debug: Check if API key is loaded
+        print(f"🔑 API Key loaded: {'Yes' if api_key and api_key != 'your_google_api_key_here' else 'No'}")
+        
+        if not api_key or api_key == "your_google_api_key_here":
+            raise ValueError("GOOGLE_API_KEY not found in .env file. Please add your Google Gemini API key.")
+        
+        # IMPORTANT: Use GoogleGenerativeAI (not ChatGoogleGenerativeAI) for CrewAI compatibility
         self.llm = GoogleGenerativeAI(
+            model="gemini-1.5-flash",  # Changed from gemini-pro to gemini-1.5-flash
+            google_api_key=api_key,
+            temperature=0.7,
+            max_output_tokens=2048,
+            top_p=0.95,
+            top_k=40
+        )
+        
+        # Alternative chat LLM if needed
+        self.chat_llm = ChatGoogleGenerativeAI(
             model="gemini-1.5-flash",
             google_api_key=api_key,
             temperature=0.7,
-            max_tokens=None,
-            timeout=None,
-            max_retries=2,
-        )
-        
-        # Alternative: Using ChatGoogleGenerativeAI if the above doesn't work
-        self.chat_llm = ChatGoogleGenerativeAI(
-            model="gemini-1.5-flash",
-            temperature=0.7,
-            google_api_key=api_key
+            convert_system_message_to_human=True
         )
     
     def create_health_agent(self) -> Agent:
@@ -50,7 +53,7 @@ class LifeOpsAgents:
                        foundation for all life success.""",
             verbose=True,
             allow_delegation=False,
-            llm=self.llm,  # Using Google Gemini
+            llm=self.llm,  # Use GoogleGenerativeAI
             max_iter=3,
             max_rpm=10
         )
@@ -68,7 +71,7 @@ class LifeOpsAgents:
                        should enable life goals, not control them.""",
             verbose=True,
             allow_delegation=False,
-            llm=self.llm,  # Using Google Gemini
+            llm=self.llm,  # Use GoogleGenerativeAI
             max_iter=3,
             max_rpm=10
         )
@@ -86,7 +89,7 @@ class LifeOpsAgents:
                        You believe smart work always beats hard work.""",
             verbose=True,
             allow_delegation=False,
-            llm=self.llm,  # Using Google Gemini
+            llm=self.llm,  # Use GoogleGenerativeAI
             max_iter=3,
             max_rpm=10
         )
@@ -106,7 +109,7 @@ class LifeOpsAgents:
                        and success.""",
             verbose=True,
             allow_delegation=True,
-            llm=self.llm,  # Using Google Gemini
+            llm=self.llm,  # Use GoogleGenerativeAI
             max_iter=5,
             max_rpm=15
         )
