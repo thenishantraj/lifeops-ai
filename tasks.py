@@ -89,6 +89,49 @@ class LifeOpsTasks:
             """
         )
     
+    # Ye function missing tha, ab add kar diya hai ✅
+    def create_study_analysis_task(self) -> Task:
+        """Task for study agent to analyze user's learning situation"""
+        study_agent = self.agents.create_study_agent()
+        
+        days_until_exam = self.user_context.get('days_until_exam', 0)
+        exam_date = self.user_context.get('exam_date', 'Not specified')
+        
+        return Task(
+            description=f"""Analyze the user's study situation and create an optimal plan:
+            
+            User Context:
+            - Upcoming Exam: {exam_date} ({days_until_exam} days from now)
+            - Current Study Hours: {self.user_context.get('current_study_hours', 'Not specified')}/day
+            - Subjects/Topics: {self.user_context.get('subjects', 'Not specified')}
+            - Problem: {self.user_context.get('problem', 'No specific problem mentioned')}
+            
+            Your Analysis Should Include:
+            1. Study schedule optimization
+            2. Effective learning techniques for retention
+            3. Burnout prevention strategies
+            4. Break scheduling recommendations
+            5. Resource allocation
+            
+            Consider cross-domain impacts:
+            - How study schedule affects sleep/health
+            - Financial investment in study resources
+            - Stress management during study periods
+            
+            Create a realistic, sustainable study plan.
+            """,
+            agent=study_agent,
+            expected_output="""A comprehensive study plan with:
+            1. Daily/Weekly Schedule
+            2. Learning Technique Recommendations
+            3. Progress Tracking Methods
+            4. Break/Burnout Prevention Strategy
+            5. Resource Recommendations
+            6. Cross-domain Considerations
+            """
+        )
+    
+    # Ye sahi wala coordination logic hai ✅
     def create_life_coordination_task(self, context_tasks: list) -> Task:
         """Master task that coordinates all domains"""
         coordinator = self.agents.create_life_coordinator()
@@ -117,53 +160,5 @@ class LifeOpsTasks:
             4. Trade-off Decisions Made
             5. Specific Action Items for Each Domain
             """,
-            context=context_tasks  # This now accepts a list of Task objects
-        )
-    
-    def create_life_coordination_task(self, health_output: str, finance_output: str, study_output: str) -> Task:
-        """Master task that coordinates all domains"""
-        coordinator = self.agents.create_life_coordinator()
-        
-        return Task(
-            description=f"""You are the Life Operations Coordinator. Your job is to integrate
-            insights from all domains and create a unified life plan.
-            
-            User's Primary Problem: {self.user_context.get('problem', 'General life optimization')}
-            
-            Domain Insights:
-            
-            HEALTH ANALYSIS:
-            {health_output}
-            
-            FINANCE ANALYSIS:
-            {finance_output}
-            
-            STUDY ANALYSIS:
-            {study_output}
-            
-            Your Coordination Task:
-            1. Identify conflicts between domain recommendations
-            2. Make trade-off decisions when necessary
-            3. Create a unified weekly schedule
-            4. Prioritize actions based on urgency/importance
-            5. Provide specific cross-domain insights (e.g., "Because stress is high, reduce study hours")
-            6. Create a "LifeOps Priority Matrix"
-            
-            Focus on creating a balanced, sustainable approach that considers:
-            - Short-term needs vs long-term goals
-            - Resource constraints (time, money, energy)
-            - Synergies between domains
-            
-            Your output must include clear cross-domain reasoning.
-            """,
-            agent=coordinator,
-            expected_output="""A comprehensive life coordination plan with:
-            1. Cross-Domain Insights & Reasoning
-            2. Priority Matrix (Urgent/Important)
-            3. Unified Weekly Schedule
-            4. Trade-off Decisions Made
-            5. Specific Action Items for Each Domain
-            6. Success Metrics & Progress Tracking
-            """,
-            context=[health_output, finance_output, study_output]
+            context=context_tasks  # Correctly accepts list of Task objects
         )
